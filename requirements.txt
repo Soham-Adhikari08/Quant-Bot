@@ -1,0 +1,18 @@
+#[cite: 9]
+numpy
+pandas
+
+#ml[cite: 9]
+scikit-learn
+xgboost
+lightgbm
+
+#dl[cite: 9]
+torch
+
+joblib
+
+#Visuals[cite: 9]
+matplotlib
+plotly
+streamlit
