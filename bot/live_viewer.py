@@ -28,7 +28,7 @@ def watch_market(symbol):
                 print(f"Backend Error: {data['error']}")
                 
         except requests.exceptions.ConnectionError:
-            print("❌ Cannot connect to backend. Is Flask running on port 5000?")
+            print("Cannot connect to backend. Is Flask running on port 5000?")
             break
             
         # Wait 5 seconds before checking the price again
