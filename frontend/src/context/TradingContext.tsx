@@ -192,7 +192,7 @@ const INITIAL_ACCOUNT: UserAccount = {
   mobile: '9876543210',
   panNumber: 'ABCDE1234F',
   dob: '1992-08-14',
-  annualIncome: '₹10 - 25 Lakhs',
+  annualIncome: ' 10 - 25 Lakhs',
   tradingExperience: 'Intermediate (1-3 Years)',
   segments: ['NSE Equities (Cash)', 'Quant Algorithmic Automated', 'Futures & Options (F&O)'],
   bankName: 'HDFC Bank Ltd.',
@@ -222,6 +222,7 @@ export const TradingProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [isWorkstationMenuOpen, setIsWorkstationMenuOpen] = useState<boolean>(false);
   const [simulationOverride, setSimulationOverride] = useState<boolean>(false);
   const [marketStatus, setMarketStatus] = useState<MarketStatus>(getNSEMarketStatus());
+  
   const [insufficientFundsAlert, setInsufficientFundsAlert] = useState<InsufficientFundsAlert | null>(null);
   const [marketClosedAlert, setMarketClosedAlert] = useState<MarketClosedAlert | null>(null);
 
@@ -237,18 +238,18 @@ export const TradingProvider: React.FC<{ children: React.ReactNode }> = ({ child
   useEffect(() => {
     // Initial sync
     setMarketStatus(getNSEMarketStatus());
-
+    
     const statusInterval = setInterval(() => {
       setMarketStatus(getNSEMarketStatus());
     }, 1000);
-
+    
     return () => clearInterval(statusInterval);
   }, []);
 
   // Fetch real market quotes from server proxy
   useEffect(() => {
     let isMounted = true;
-
+    
     const fetchLiveQuotes = async () => {
       try {
         const res = await fetch('/api/market/quotes');
@@ -262,10 +263,10 @@ export const TradingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         // network fallback
       }
     };
-
+    
     fetchLiveQuotes();
     const interval = setInterval(fetchLiveQuotes, 15000);
-
+    
     return () => {
       isMounted = false;
       clearInterval(interval);
@@ -278,12 +279,13 @@ export const TradingProvider: React.FC<{ children: React.ReactNode }> = ({ child
       prev.map(pos => {
         const stock = stocks[pos.symbol];
         if (!stock) return pos;
+        
         const currentPrice = stock.price;
         const marketValue = Number((currentPrice * pos.quantity).toFixed(2));
         const costBasis = pos.avgPrice * pos.quantity;
         const pnl = Number((marketValue - costBasis).toFixed(2));
         const pnlPercent = Number(((pnl / costBasis) * 100).toFixed(2));
-
+        
         return {
           ...pos,
           currentPrice,
@@ -295,13 +297,12 @@ export const TradingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     );
   }, [stocks]);
 
-  const currentStock = stocks[selectedSymbol] || stocks.RELIANCE;
-
   // Portfolio calculations
   const investedAmount = holdings.reduce((sum, h) => sum + (h.avgPrice * h.quantity), 0);
   const unrealisedPnl = holdings.reduce((sum, h) => sum + h.pnl, 0);
   const realisedPnl = 2450.00;
   const cashBalance = account.virtualBalance;
+  
   const totalPortfolioValue = Number((cashBalance + investedAmount + unrealisedPnl).toFixed(2));
   const totalPnl = Number((realisedPnl + unrealisedPnl).toFixed(2));
   const totalPnlPercent = Number(((totalPnl / account.initialCapital) * 100).toFixed(2));
@@ -329,6 +330,7 @@ export const TradingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     if (type === 'BUY' && totalCost > account.virtualBalance) {
       const deficit = Number((totalCost - account.virtualBalance).toFixed(2));
       const isAmoOrder = isAmo || orderCategory === 'AMO';
+      
       setInsufficientFundsAlert({
         symbol,
         shares: quantity,
@@ -340,16 +342,18 @@ export const TradingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         isAmo: isAmoOrder,
         reason: `Your available virtual cash balance of ₹${account.virtualBalance.toLocaleString('en-IN', { minimumFractionDigits: 2 })} is insufficient to execute this order requiring ₹${totalCost.toLocaleString('en-IN', { minimumFractionDigits: 2 })}. A cash deficit of ₹${deficit.toLocaleString('en-IN', { minimumFractionDigits: 2 })} prevents this trade from executing.`
       });
-      return {
-        success: false,
+      
+      return { 
+        success: false, 
         message: `Insufficient cash balance. Cash deficit: ₹${deficit.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`,
-        isInsufficientFunds: true
+        isInsufficientFunds: true 
       };
     }
 
     // 2. Strict Market Closed Verification (Triggers 320px Market Closed modal popup)
     if (!marketStatus.isOpen && !simulationOverride && !isAmo && orderCategory !== 'AMO') {
       const schedule = getNextMarketOpenSchedule();
+      
       setMarketClosedAlert({
         symbol,
         type,
@@ -359,8 +363,9 @@ export const TradingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         nextOpenTimeText: schedule.nextOpenTimeText,
         statusText: schedule.statusText
       });
-      return {
-        success: false,
+      
+      return { 
+        success: false, 
         message: `Market is currently closed (${schedule.currentIstTime}). Regular trading opens on ${schedule.nextOpenDateText} at ${schedule.nextOpenTimeText}.`,
         isMarketClosed: true
       };
@@ -380,12 +385,10 @@ export const TradingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         isAmo: true,
         timestamp: `${timeStr} (AMO)`
       };
-
       setOrders(prev => [amoOrder, ...prev]);
-
-      return {
-        success: true,
-        message: `AMO Order Queued: ${type} ${quantity} ${symbol} @ ₹${price.toFixed(2)}. Will execute at 09:15 IST.`
+      return { 
+        success: true, 
+        message: `AMO Order Queued: ${type} ${quantity} ${symbol} @ ₹${price.toFixed(2)}. Will execute at 09:15 IST.` 
       };
     }
 
@@ -401,6 +404,7 @@ export const TradingProvider: React.FC<{ children: React.ReactNode }> = ({ child
         if (existing) {
           const newQty = existing.quantity + quantity;
           const newAvgPrice = Number(((existing.avgPrice * existing.quantity + totalCost) / newQty).toFixed(2));
+          
           return prev.map(p => p.symbol === symbol ? {
             ...p,
             quantity: newQty,
@@ -489,7 +493,25 @@ export const TradingProvider: React.FC<{ children: React.ReactNode }> = ({ child
     setHoldings(INITIAL_HOLDINGS);
     setOrders(INITIAL_ORDERS);
   };
+const defaultStock: StockQuote = {
+    symbol: selectedSymbol,
+    name: selectedSymbol,
+    price: 0,
+    change: 0,
+    changePercent: 0,
+    open: 0,
+    high: 0,
+    low: 0,
+    prevClose: 0,
+    volume: 0,
+    volumeFormatted: '0',
+    week52High: 0,
+    week52Low: 0,
+    isRealTime: false,
+    lastUpdated: 'Connecting...'
+  };
 
+  const currentStock = stocks[selectedSymbol] || Object.values(stocks)[0] || defaultStock;
   return (
     <TradingContext.Provider
       value={{

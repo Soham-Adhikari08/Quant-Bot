@@ -1,177 +1,6 @@
 import { CandleData, StockQuote, TechnicalIndicators } from '../types/trading';
 
-export const INITIAL_STOCKS: Record<string, StockQuote> = {
-  RELIANCE: {
-    symbol: 'RELIANCE',
-    name: 'Reliance Industries Ltd.',
-    price: 1164.90,
-    change: 12.40,
-    changePercent: 1.08,
-    open: 1152.50,
-    high: 1174.60,
-    low: 1152.50,
-    prevClose: 1152.50,
-    volume: 14200000,
-    volumeFormatted: '14.2M',
-    week52High: 1611.80,
-    week52Low: 1152.20,
-    isRealTime: true,
-    lastUpdated: 'Live NSE'
-  },
-  TCS: {
-    symbol: 'TCS',
-    name: 'Tata Consultancy Services',
-    price: 2502.60,
-    change: -32.40,
-    changePercent: -1.28,
-    open: 2535.00,
-    high: 2548.00,
-    low: 2490.10,
-    prevClose: 2535.00,
-    volume: 4800000,
-    volumeFormatted: '4.8M',
-    week52High: 3500.00,
-    week52Low: 2450.00,
-    isRealTime: true,
-    lastUpdated: 'Live NSE'
-  },
-  HDFCBANK: {
-    symbol: 'HDFCBANK',
-    name: 'HDFC Bank Ltd.',
-    price: 692.80,
-    change: 4.75,
-    changePercent: 0.69,
-    open: 688.05,
-    high: 696.00,
-    low: 686.20,
-    prevClose: 688.05,
-    volume: 22000000,
-    volumeFormatted: '22.0M',
-    week52High: 780.00,
-    week52Low: 560.00,
-    isRealTime: true,
-    lastUpdated: 'Live NSE'
-  },
-  INFY: {
-    symbol: 'INFY',
-    name: 'Infosys Ltd.',
-    price: 1185.00,
-    change: 19.00,
-    changePercent: 1.63,
-    open: 1166.00,
-    high: 1192.40,
-    low: 1162.00,
-    prevClose: 1166.00,
-    volume: 8700000,
-    volumeFormatted: '8.7M',
-    week52High: 1550.00,
-    week52Low: 1120.00,
-    isRealTime: true,
-    lastUpdated: 'Live NSE'
-  },
-  ICICIBANK: {
-    symbol: 'ICICIBANK',
-    name: 'ICICI Bank Ltd.',
-    price: 1398.00,
-    change: -5.00,
-    changePercent: -0.36,
-    open: 1403.00,
-    high: 1412.00,
-    low: 1390.00,
-    prevClose: 1403.00,
-    volume: 11500000,
-    volumeFormatted: '11.5M',
-    week52High: 1490.00,
-    week52Low: 1050.00,
-    isRealTime: true,
-    lastUpdated: 'Live NSE'
-  },
-  SBIN: {
-    symbol: 'SBIN',
-    name: 'State Bank of India',
-    price: 961.85,
-    change: 1.05,
-    changePercent: 0.11,
-    open: 960.80,
-    high: 968.40,
-    low: 955.10,
-    prevClose: 960.80,
-    volume: 18400000,
-    volumeFormatted: '18.4M',
-    week52High: 1020.00,
-    week52Low: 680.00,
-    isRealTime: true,
-    lastUpdated: 'Live NSE'
-  },
-  BHARTIARTL: {
-    symbol: 'BHARTIARTL',
-    name: 'Bharti Airtel Ltd.',
-    price: 1984.50,
-    change: 22.30,
-    changePercent: 1.14,
-    open: 1965.00,
-    high: 1995.00,
-    low: 1960.00,
-    prevClose: 1962.20,
-    volume: 7200000,
-    volumeFormatted: '7.2M',
-    week52High: 2050.00,
-    week52Low: 1180.00,
-    isRealTime: true,
-    lastUpdated: 'Live NSE'
-  },
-  ITC: {
-    symbol: 'ITC',
-    name: 'ITC Ltd.',
-    price: 492.40,
-    change: 3.80,
-    changePercent: 0.78,
-    open: 489.00,
-    high: 494.50,
-    low: 487.80,
-    prevClose: 488.60,
-    volume: 15400000,
-    volumeFormatted: '15.4M',
-    week52High: 528.00,
-    week52Low: 399.00,
-    isRealTime: true,
-    lastUpdated: 'Live NSE'
-  },
-  TATAMOTORS: {
-    symbol: 'TATAMOTORS',
-    name: 'Tata Motors Ltd.',
-    price: 885.60,
-    change: -8.20,
-    changePercent: -0.92,
-    open: 896.00,
-    high: 902.00,
-    low: 882.00,
-    prevClose: 893.80,
-    volume: 12100000,
-    volumeFormatted: '12.1M',
-    week52High: 1179.00,
-    week52Low: 640.00,
-    isRealTime: true,
-    lastUpdated: 'Live NSE'
-  },
-  KOTAKBANK: {
-    symbol: 'KOTAKBANK',
-    name: 'Kotak Mahindra Bank Ltd.',
-    price: 1782.00,
-    change: 14.50,
-    changePercent: 0.82,
-    open: 1770.00,
-    high: 1792.00,
-    low: 1765.00,
-    prevClose: 1767.50,
-    volume: 5300000,
-    volumeFormatted: '5.3M',
-    week52High: 1925.00,
-    week52Low: 1540.00,
-    isRealTime: true,
-    lastUpdated: 'Live NSE'
-  }
-};
+export const INITIAL_STOCKS: Record<string, StockQuote> = {};
 
 /**
  * Fetch real historical candlestick series from server endpoint with fallback
@@ -184,16 +13,14 @@ export async function fetchRealCandles(
     const res = await fetch(`/api/market/candles/${symbol}?timeframe=${timeframe}`);
     if (res.ok) {
       const data = await res.json();
-      if (data.candles && Array.isArray(data.candles) && data.candles.length > 0) {
+      if (data.candles && data.candles.length > 0) {
         return data.candles;
       }
     }
   } catch (err) {
-    console.warn('Candle fetch error:', err);
+    console.error('Failed to fetch real candles:', err);
   }
-
-  // Graceful fallback
-  return generateFallbackCandles(symbol, timeframe);
+  return []; 
 }
 
 /**
