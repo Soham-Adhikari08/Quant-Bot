@@ -1,29 +1,28 @@
-# backend/app.py
 from flask import Flask, jsonify, request
-from dotenv import load_dotenv
-from services.client import get_bse_live_data
-
-# Load environment variables from the .env file
-load_dotenv()
+from flask_cors import CORS
+from client import get_live_quotes, get_historical_candles
 
 app = Flask(__name__)
+CORS(app) # Enables the Vite frontend to communicate with Flask
 
-@app.route('/api/v1/status', methods=['GET'])
-def health_check():
-    #endpoints setup
-    return jsonify({"status": "Quant-Bot Exchange Backend is online"}), 200
+@app.route('/api/market/quotes', methods=['GET'])
+def market_quotes():
+    """Serves the continuous live quote polling from the dashboard."""
+    return jsonify(get_live_quotes())
 
-@app.route('/api/v1/market/quote/bse/<symbol>', methods=['GET'])
-def bse_quote(symbol):
-    # Route that fetches a live quote for a specific BSE stock
-    data = get_bse_live_data(symbol)
-    
-    if "error" in data:
-        return jsonify(data), 502 # 502 Bad Gateway for external API failures
-        
-    return jsonify(data), 200
+@app.route('/api/market/candles/<symbol>', methods=['GET'])
+def market_candles(symbol):
+    """Serves historical OHLCV data for the SVG candlestick charts."""
+    timeframe = request.args.get('timeframe', '1D')
+    return jsonify(get_historical_candles(symbol, timeframe))
+
+@app.route('/api/predict/fusion', methods=['POST'])
+def predict_fusion():
+    """Deliverable 2 Integration point for the Fusion Engine."""
+    return jsonify({
+        "status": "pending",
+        "message": "Awaiting regression and classification model training."
+    })
 
 if __name__ == '__main__':
-    print("Starting Quant-Bot Backend on port 5000...")
-    # debug=True auto-restarts the server when you save code changes
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(port=5000, debug=True)

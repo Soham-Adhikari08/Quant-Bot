@@ -1,0 +1,6 @@
+{
+  "name": "Quant-Bot - AI-Powered Trading Platform",
+  "description": "Dual-model AI (Regression + Classification) quantitative trading terminal, live Indian equities data, technical indicators, and risk-managed paper trading.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
