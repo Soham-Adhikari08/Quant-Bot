@@ -11,6 +11,37 @@ async function startServer() {
   const PORT = process.env.PORT || 3000;
 
   app.use(express.json());
+  // Forward market-data and health requests to the Flask backend.
+  app.use(['/api/market/quotes', '/api/market/candles', '/api/health'], async (req, res) => {
+    try {
+      const upstream = await fetch(`http://127.0.0.1:5000${req.originalUrl}`, {
+        method: req.method,
+        headers: {
+          ...(req.headers.accept ? { accept: req.headers.accept } : {}),
+          ...(req.headers['content-type'] ? { 'content-type': req.headers['content-type'] } : {})
+        },
+        body: ['GET', 'HEAD'].includes(req.method)
+          ? undefined
+          : JSON.stringify(req.body ?? {})
+      });
+
+      res.status(upstream.status);
+
+      upstream.headers.forEach((value, key) => {
+        if (!['connection', 'transfer-encoding', 'content-encoding', 'content-length'].includes(key.toLowerCase())) {
+          res.setHeader(key, value);
+        }
+      });
+
+      res.end(Buffer.from(await upstream.arrayBuffer()));
+    } catch (error) {
+      console.error('Flask API proxy error:', error);
+      res.status(502).json({
+        error: 'Flask backend unavailable',
+        code: 'upstream_unavailable'
+      });
+    }
+  });
 
   // In-memory cache for quotes & candles to avoid throttling
   const quotesCache = {
@@ -557,3 +588,4 @@ function getDefaultRealQuotes(): Record<string, any> {
 }
 
 startServer();
+

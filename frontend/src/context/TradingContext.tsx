@@ -2,7 +2,6 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { StockQuote, Position, Order, UserAccount, MarketStatus } from '../types/trading';
 import { INITIAL_STOCKS } from '../services/marketData';
 import { getNSEMarketStatus, getNextMarketOpenSchedule } from '../services/marketHours';
-const API_BASE_URL = "http://localhost:5000/api";
 export type ActiveView = 
   | 'loading'
   | 'dashboard' 

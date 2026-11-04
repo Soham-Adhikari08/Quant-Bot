@@ -40,7 +40,31 @@ export const MarketOverviewView: React.FC = () => {
   }, [selectedSymbol, timeframe]);
 
   const indicators = computeTechnicalIndicators(selectedSymbol, currentStock.price);
-  const isPositive = currentStock.changePercent >= 0;
+
+  // FIXED: Standard calculation based on Previous Close for the selected timeframe
+  const getDynamicChange = () => {
+    // For the 1D view, rely on the backend's accurate prevClose quote
+    if (timeframe === '1D') {
+      return { change: currentStock.change, changePercent: currentStock.changePercent };
+    }
+
+    // For larger timeframes (1W, 1M, 1Y), calculate from the chart data
+    if (!candles || candles.length === 0) {
+      return { change: currentStock.change, changePercent: currentStock.changePercent };
+    }
+    
+    // The true base is the Close of the FIRST candle in the timeframe
+    const baseClose = candles[0].close;
+    const lastClose = candles[candles.length - 1].close;
+    
+    const dynamicChange = lastClose - baseClose;
+    const dynamicChangePercent = baseClose !== 0 ? (dynamicChange / baseClose) * 100 : 0;
+    
+    return { change: dynamicChange, changePercent: dynamicChangePercent };
+  };
+
+  const { change: dynamicChange, changePercent: dynamicChangePercent } = getDynamicChange();
+  const isPositive = dynamicChangePercent >= 0;
 
   const timeframes: ('1D' | '1W' | '1M' | '3M' | '1Y' | 'ALL')[] = ['1D', '1W', '1M', '3M', '1Y', 'ALL'];
   const indicatorTabs: ('SMA' | 'RSI' | 'MACD' | 'Bollinger Bands')[] = ['SMA', 'RSI', 'MACD', 'Bollinger Bands'];
@@ -153,8 +177,9 @@ export const MarketOverviewView: React.FC = () => {
                 <span className="text-2xl font-extrabold font-mono text-slate-900">
                   {currentStock.price.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                 </span>
+                {/* MODIFIED: Now uses dynamic change variables */}
                 <span className={`text-xs font-mono font-bold ${isPositive ? 'text-emerald-600' : 'text-rose-600'}`}>
-                  {isPositive ? '+' : ''}{currentStock.change.toFixed(2)} ({isPositive ? '+' : ''}{currentStock.changePercent.toFixed(2)}%)
+                  {isPositive ? '+' : ''}{dynamicChange.toFixed(2)} ({isPositive ? '+' : ''}{dynamicChangePercent.toFixed(2)}%)
                 </span>
               </div>
             </div>
